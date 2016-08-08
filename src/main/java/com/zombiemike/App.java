@@ -1,5 +1,6 @@
 package com.zombiemike;
 
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,20 +20,24 @@ public class App {
 
     public static void main(String[] args){
 
-        //Get the path to where the test files are stored.
-        Path dir = Paths.get("files");
-
-        /* -----------debug--------------------------
-        System.out.println("Working Directory = " +
-                dir.toAbsolutePath().toString());
-        */
+        if(args.length!=0) {
+            //Get the path to where the test files are stored.
+            Path dir = Paths.get(args[0]);
 
 
-        try {
-            SearchEngine mSearch = new SearchEngine(dir);
-        } catch (IOException e) {
-            e.printStackTrace();
+            try {
+                SearchEngine mSearch = new SearchEngine(dir);
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println(("!!! Invalid path or folder does not include any .txt documents !!!").toUpperCase());
+            }
+
+        }else{
+            System.out.println("HOW TO USE THIS SEARCH ENGINE: \nThis search engine takes a String in the form of a path as input argument (eg. C:\\User\\...\\FilesToSearch)\n" +
+                    "In the specified folder, the search engine indexes all *.txt documents and make them searchable\n\n" +
+                    "Please provide a path to your file as an input argument and run the application again");
         }
+
 
 
     }

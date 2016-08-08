@@ -24,7 +24,7 @@ public class SearchEngine {
     private HashMap<String, IndexedWord> index;
     private Path dir;
 
-    public SearchEngine(Path dir) throws IOException {
+    public SearchEngine(Path dir) throws IOException{
         this.index =new HashMap<>();
         this.dir = dir;
         indexFiles();
@@ -53,7 +53,7 @@ public class SearchEngine {
             //go through all documents
             for (Path entry: stream) {
                 List<String> allLines = Files.readAllLines(entry, Charset.defaultCharset());
-                String documentName = entry.toString().split("\\W+")[1];
+                String documentName = entry.getFileName().toString().split("\\W+")[0];
                 docCount++;
                 //Go through all lines in each document
                 for (String s:allLines) {
@@ -71,6 +71,7 @@ public class SearchEngine {
 
         } catch (DirectoryIteratorException ex) {
             // I/O error encountered during the iteration, the cause is an IOException
+            System.out.println("Invalid path, or, folder does not include  any .txt documents");
             throw ex.getCause();
         }
 
