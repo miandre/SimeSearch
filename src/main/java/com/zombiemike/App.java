@@ -1,6 +1,8 @@
 package com.zombiemike;
-import java.io.*;
-import java.nio.file.*;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Created by Mikael André on 2016-08-02.
