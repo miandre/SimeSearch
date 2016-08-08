@@ -1,6 +1,5 @@
-package com.zombimike;
+package com.zombiemike;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Stream;
 

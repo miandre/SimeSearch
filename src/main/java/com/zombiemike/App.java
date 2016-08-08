@@ -1,4 +1,4 @@
-package com.zombimike;
+package com.zombiemike;
 import java.io.*;
 import java.nio.file.*;
 

@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="SimeSearch:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/SimeSearch_jar</output-path>
+    <root id="archive" name="SimeSearch.jar">
+      <element id="module-output" name="SimeSearch" />
+    </root>
+  </artifact>
+</component>

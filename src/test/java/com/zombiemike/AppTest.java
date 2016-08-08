@@ -1,4 +1,4 @@
-package com.zombimike;
+package com.zombiemike;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
