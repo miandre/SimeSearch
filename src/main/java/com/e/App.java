@@ -1,4 +1,4 @@
-package com.zombimike;
+package com.e;
 import java.io.*;
 import java.nio.file.*;
 
@@ -18,7 +18,8 @@ public class App {
     public static void main(String[] args){
 
         //Get the path to where the test files are stored.
-        Path dir = Paths.get("files");
+
+        Path dir = Paths.get(args[0]);
 
         /* -----------debug--------------------------
         System.out.println("Working Directory = " +

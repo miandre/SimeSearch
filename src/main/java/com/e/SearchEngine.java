@@ -1,4 +1,4 @@
-package com.zombimike;
+package com.e;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.DirectoryIteratorException;
@@ -53,7 +53,7 @@ public class SearchEngine {
             //go through all documents
             for (Path entry: stream) {
                 List<String> allLines = Files.readAllLines(entry, Charset.defaultCharset());
-                String documentName = entry.toString().split("\\W+")[1];
+                String documentName = entry.getFileName().toString().split("\\W+")[0];
                 docCount++;
                 //Go through all lines in each document
                 for (String s:allLines) {
