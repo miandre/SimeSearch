@@ -31,7 +31,7 @@ public class App {
         if(args.length!=0) {
             //Get the path to where the test files are stored.
             Path dir = Paths.get(args[0]);
-            LOG.info("Filepath: "+dir.toAbsolutePath().toString());
+            LOG.debug("Filepath: "+dir.toAbsolutePath().toString());
 
             try {
                 SearchEngine mSearch = new SearchEngine(dir);
