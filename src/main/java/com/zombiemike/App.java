@@ -1,9 +1,14 @@
 package com.zombiemike;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+
 
 /**
  * Created by Mikael André on 2016-08-02.
@@ -18,12 +23,15 @@ import java.nio.file.Paths;
 
 public class App {
 
+    private static final Logger LOG = LoggerFactory.getLogger(App.class);
+
     public static void main(String[] args){
+
 
         if(args.length!=0) {
             //Get the path to where the test files are stored.
             Path dir = Paths.get(args[0]);
-
+            LOG.info("Filepath: "+dir.toAbsolutePath().toString());
 
             try {
                 SearchEngine mSearch = new SearchEngine(dir);
