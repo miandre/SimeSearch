@@ -1,4 +1,7 @@
 package com.zombiemike;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.DirectoryIteratorException;
@@ -21,6 +24,7 @@ import java.util.*;
  */
 public class SearchEngine {
 
+    private final Logger LOG = LoggerFactory.getLogger(this.getClass());
     private HashMap<String, IndexedWord> index;
     private Path dir;
 
@@ -49,7 +53,7 @@ public class SearchEngine {
 
 
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.{txt}")) {
-
+            LOG.debug("Indexing files...\n");
             //go through all documents
             for (Path entry: stream) {
                 List<String> allLines = Files.readAllLines(entry, Charset.defaultCharset());
@@ -68,6 +72,7 @@ public class SearchEngine {
                     }
                 }
             }
+            LOG.debug("Done indexing...\n");
 
         } catch (DirectoryIteratorException ex) {
             // I/O error encountered during the iteration, the cause is an IOException

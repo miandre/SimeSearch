@@ -1,5 +1,8 @@
 package com.zombiemike;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -21,6 +24,7 @@ import java.util.stream.Stream;
 
 public class IndexedWord {
 
+    private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     private HashMap<String,Integer> occurrences;
     private int totalOccurrences;
@@ -79,6 +83,7 @@ public class IndexedWord {
      */
     public Map<String, Integer> getDocumentList(){
 
+        LOG.debug("\nFetching document list...\n");
         Map<String, Integer> result = new LinkedHashMap<>();
         Stream<Map.Entry<String, Integer>> stream = occurrences.entrySet().stream();
 
