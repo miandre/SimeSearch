@@ -75,7 +75,6 @@ public class SearchEngine {
                 List<String>  wordsInDoc = new ArrayList<>();
                 String documentName = entry.getFileName().toString().split("\\W+")[0];
                 docCount++;
-                int wordPerDocumentCount = 0;
                 //Go through all lines in each document
                 for (String s:allLines) {
                     String[] words = s.trim().split("\\W+");
@@ -85,7 +84,6 @@ public class SearchEngine {
                         for (int i = 0; i<words.length; i++) {
                             wordsInDoc.add(words[i].toLowerCase());
                             wordCount++;
-
                         }
                     }
                 }
@@ -188,8 +186,7 @@ public class SearchEngine {
 
     /**
      * This method is the actual search method that allows the user to search for a single word, and prints
-     * aa list of the documents where the word occurs, starting with the document with the most occurrences of the
-     * word.
+     * aa list of the documents where the word occurs, sorted descending by their TF-IDF value.
      *
      * If the word is not present in any document, that fact is presented to the user. =)
      */

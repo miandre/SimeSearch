@@ -25,7 +25,7 @@ public class IndexedWord {
     private final Logger LOG = LoggerFactory.getLogger(this.getClass());
     private HashMap<String, Integer> occurrences;
     private LinkedHashMap<String, Double> tfIdfList;
-    private int totalOccurrences;
+
 
 
     /**
@@ -37,7 +37,6 @@ public class IndexedWord {
     public IndexedWord(String document) {
         this.occurrences = new HashMap<>();
         this.tfIdfList = new LinkedHashMap<>();
-        this.totalOccurrences = 1;
         occurrences.put(document, 1);
     }
 
@@ -50,13 +49,8 @@ public class IndexedWord {
 
     public LinkedHashMap<String,Double> getTfIdfList(){
 
+
         return this.tfIdfList;
-    }
-
-
-
-    public int getTotalOccurrences() {
-        return totalOccurrences;
     }
 
     //*******************************************/
@@ -81,7 +75,7 @@ public class IndexedWord {
     public void incrementOccurrence(String document) {
 
         occurrences.put(document, occurrences.get(document) + 1);
-        totalOccurrences++;
+
     }
 
     /**
@@ -92,7 +86,7 @@ public class IndexedWord {
     public void addOccurrence(String document) {
 
         occurrences.put(document, 1);
-        totalOccurrences++;
+
     }
 
 }
