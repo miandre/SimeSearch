@@ -24,21 +24,23 @@ public class IndexedWord {
 
     private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
-    private HashMap<String,Integer> occurrences;
-    private LinkedHashMap<String,Double> tfIdfList;
+    private HashMap<String, Integer> occurrences;
+    private LinkedHashMap<String, Double> tfIdfList;
+
     private int totalOccurrences;
 
 
     /**
      * Since an object is only created the first time a word occurs in any document, the constructor adds this words
      * first occurence to the list of documents, with the value 1.
+     *
      * @param document
      */
     public IndexedWord(String document) {
         this.occurrences = new HashMap<>();
         this.tfIdfList = new LinkedHashMap<>();
         this.totalOccurrences = 1;
-        occurrences.put(document,1);
+        occurrences.put(document, 1);
     }
 
     //******************GETTERS N' SETTERS*****************/
@@ -70,26 +72,28 @@ public class IndexedWord {
         this.tfIdfList.put(doc,tfIdf);
     }
 
+
     /**
      * This method is called when an indexed word appears anew in a document where it have already been found.
+     *
      * @param document
      */
     public void incrementOccurrence(String document) {
 
-        occurrences.put(document, occurrences.get(document)+1);
+        occurrences.put(document, occurrences.get(document) + 1);
         totalOccurrences++;
     }
 
+
     /**
      * This method is called the first time an already indexed word is found in a new document.
+     *
      * @param document
      */
     public void addOccurrence(String document) {
 
-        occurrences.put(document,1);
+        occurrences.put(document, 1);
         totalOccurrences++;
     }
-
-
-
 }
+

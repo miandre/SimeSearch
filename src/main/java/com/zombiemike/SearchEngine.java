@@ -32,7 +32,7 @@ public class SearchEngine {
 
     private final Logger LOG = LoggerFactory.getLogger(this.getClass());
     private HashMap<String, Integer> documentsLength;
-    private HashMap<String, IndexedWord> index;
+        private HashMap<String, IndexedWord> index;
     private Path dir;
     private int docCount;
     private int wordCount;
@@ -92,8 +92,9 @@ public class SearchEngine {
                 documentsLength.put(documentName,wordsInDoc.size());
 
             }
-
+            
             LOG.info("Done indexing...Calculating tf-idf values....\n");
+
 
         } catch (DirectoryIteratorException ex) {
             // I/O error encountered during the iteration, the cause is an IOException
