@@ -1,5 +1,8 @@
 package com.zombiemike;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
@@ -19,9 +22,15 @@ import java.util.LinkedHashMap;
 
 public class IndexedWord {
 
+    private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
+<<<<<<< HEAD
     private HashMap<String, Integer> occurrences;
     private LinkedHashMap<String, Double> tfIdfList;
+=======
+    private HashMap<String,Integer> occurrences;
+    private LinkedHashMap<String,Double> tfIdfList;
+>>>>>>> 2908268e4b74820ada0d942d3239b108c3018af2
     private int totalOccurrences;
 
 
@@ -44,7 +53,9 @@ public class IndexedWord {
     }
 
 
+
     public LinkedHashMap<String, Double> getTfIdfList() {
+
 
         return this.tfIdfList;
     }
@@ -59,14 +70,15 @@ public class IndexedWord {
     /**
      * This method is used do build the sorted list of documents containing the current word
      * and their associated tf-idf value
-     *
-     * @param doc   current associated document
+
+     * @param doc current associated document
      * @param tfIdf tf-idf value of the current word in relation tu current document
      */
-    public void addTfIdf(String doc, double tfIdf) {
+    public void addTfIdf(String doc, double tfIdf){
 
-        this.tfIdfList.put(doc, tfIdf);
+        this.tfIdfList.put(doc,tfIdf);
     }
+
 
     /**
      * This method is called when an indexed word appears anew in a document where it have already been found.
@@ -79,6 +91,7 @@ public class IndexedWord {
         totalOccurrences++;
     }
 
+
     /**
      * This method is called the first time an already indexed word is found in a new document.
      *
@@ -90,3 +103,7 @@ public class IndexedWord {
         totalOccurrences++;
     }
 }
+
+
+
+

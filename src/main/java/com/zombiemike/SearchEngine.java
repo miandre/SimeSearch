@@ -1,4 +1,7 @@
 package com.zombiemike;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.DirectoryIteratorException;
@@ -28,6 +31,7 @@ import java.util.Scanner;
 public class SearchEngine {
 
 
+
     private HashMap<String, Integer> documentsLength;
 
     private HashMap<String, IndexedWord> index;
@@ -43,7 +47,7 @@ public class SearchEngine {
         double start = System.currentTimeMillis();
         indexFiles();
         calculateTfIdf();
-        
+
         search();
     }
 
@@ -90,6 +94,7 @@ public class SearchEngine {
                 documentsLength.put(documentName,wordsInDoc.size());
 
             }
+
 
 
         } catch (DirectoryIteratorException ex) {
