@@ -32,7 +32,8 @@ public class SearchEngine {
 
     private final Logger LOG = LoggerFactory.getLogger(this.getClass());
     private HashMap<String, Integer> documentsLength;
-        private HashMap<String, IndexedWord> index;
+    private HashMap<String, IndexedWord> index;
+
     private Path dir;
     private int docCount;
     private int wordCount;
@@ -46,6 +47,7 @@ public class SearchEngine {
         indexFiles();
         calculateTfIdf();
         LOG.info(wordCount+" words in "+docCount+" documents indexed in "+ (System.currentTimeMillis()-start)+"ms.");
+
         search();
     }
 
@@ -94,6 +96,7 @@ public class SearchEngine {
             }
             
             LOG.info("Done indexing...Calculating tf-idf values....\n");
+
 
 
         } catch (DirectoryIteratorException ex) {

@@ -23,10 +23,8 @@ import java.util.LinkedHashMap;
 public class IndexedWord {
 
     private final Logger LOG = LoggerFactory.getLogger(this.getClass());
-
     private HashMap<String, Integer> occurrences;
     private LinkedHashMap<String, Double> tfIdfList;
-
     private int totalOccurrences;
 
 
@@ -49,10 +47,13 @@ public class IndexedWord {
     }
 
 
+
     public LinkedHashMap<String,Double> getTfIdfList(){
 
         return this.tfIdfList;
     }
+
+
 
     public int getTotalOccurrences() {
         return totalOccurrences;
@@ -67,12 +68,11 @@ public class IndexedWord {
      * @param doc current associated document
      * @param tfIdf tf-idf value of the current word in relation tu current document
      */
-    public void addTfIdf(String doc, double tfIdf){
+    public void addTfIdf(String doc, double tfIdf) {
 
-        this.tfIdfList.put(doc,tfIdf);
+        this.tfIdfList.put(doc, tfIdf);
+
     }
-
-
     /**
      * This method is called when an indexed word appears anew in a document where it have already been found.
      *
@@ -84,7 +84,6 @@ public class IndexedWord {
         totalOccurrences++;
     }
 
-
     /**
      * This method is called the first time an already indexed word is found in a new document.
      *
@@ -95,5 +94,6 @@ public class IndexedWord {
         occurrences.put(document, 1);
         totalOccurrences++;
     }
+
 }
 
