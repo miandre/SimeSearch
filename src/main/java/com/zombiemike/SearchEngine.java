@@ -5,7 +5,13 @@ import java.nio.file.DirectoryIteratorException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.stream.Stream;
+import java.util.Scanner;
 
 /**
  * Created by Micke on 2016-08-02.
@@ -21,13 +27,23 @@ import java.util.*;
  */
 public class SearchEngine {
 
+
+    private HashMap<String, Integer> documentsLength;
+
     private HashMap<String, IndexedWord> index;
     private Path dir;
+    private int docCount;
+    private int wordCount;
 
     public SearchEngine(Path dir) throws IOException{
         this.index =new HashMap<>();
+        this.documentsLength =new HashMap<>();
         this.dir = dir;
+
+        double start = System.currentTimeMillis();
         indexFiles();
+        calculateTfIdf();
+        
         search();
     }
 
@@ -43,9 +59,8 @@ public class SearchEngine {
      * @throws IOException
      */
     private void indexFiles() throws IOException {
-        int docCount = 0;
-        int wordCount = 0;
-        double start = System.currentTimeMillis();
+        docCount = 0;
+        wordCount = 0;
 
 
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.{txt}")) {
@@ -53,21 +68,29 @@ public class SearchEngine {
             //go through all documents
             for (Path entry: stream) {
                 List<String> allLines = Files.readAllLines(entry, Charset.defaultCharset());
+                List<String>  wordsInDoc = new ArrayList<>();
                 String documentName = entry.getFileName().toString().split("\\W+")[0];
                 docCount++;
+                int wordPerDocumentCount = 0;
                 //Go through all lines in each document
                 for (String s:allLines) {
                     String[] words = s.trim().split("\\W+");
 
                     //Go through each word of a non empty line and index the word and document occurrence
-                    if(words.length>0) {
+                    if(words.length>1) {
                         for (int i = 0; i<words.length; i++) {
-                            handleWord(words[i].toLowerCase(), documentName);
+                            wordsInDoc.add(words[i].toLowerCase());
                             wordCount++;
+
                         }
                     }
                 }
+
+                wordsInDoc.forEach(s->handleWord(s, documentName));
+                documentsLength.put(documentName,wordsInDoc.size());
+
             }
+
 
         } catch (DirectoryIteratorException ex) {
             // I/O error encountered during the iteration, the cause is an IOException
@@ -75,7 +98,6 @@ public class SearchEngine {
             throw ex.getCause();
         }
 
-        System.out.println(wordCount+" words in "+docCount+" documents indexed in "+ (System.currentTimeMillis()-start)+"ms.");
     }
 
     /**
@@ -87,7 +109,7 @@ public class SearchEngine {
      * If the word has already occurred in the same document, the frequency of the word in the current document
      * is incremented.
      *
-     * If the word has occured before, but not in the current document, the document is mapped to the word.
+     * If the word has occurred before, but not in the current document, the document is mapped to the word.
      *
      * @param word
      * @param documentName
@@ -112,7 +134,53 @@ public class SearchEngine {
 
 
     /**
-     * This method is the accual search methot that allows the user to search for a single word, and prints
+     * This method is used to calculate the TF-IDF value for each word and its assoiated documents
+     * The following calculations are used :
+     *  TF is calculated as the relative frequency of a word in each documents,
+     *  or: "(rf/d)"
+     *  where rf = the raw frequency of the term and d is the number of terms in the document
+     *
+     *  IDF is calculated as the 10-base logarithm of the quote between the total number of documents in the corpus
+     *  and the number of documents in which the term appears or:
+     *  "Log((N/n(f))"
+     *  where N is the number of documents in the corpus and n(f) is the number of documents containing the search term
+     *
+     *  Hence, the TF-IDF value is calculated as TF*IDF, or: "(rf/d)*Log10(N/n(f))"
+     *
+     *  The calculated values are then stored back in the IndexedWord object as a sorted list, allowing for fast access
+     *  in the search.
+     *
+     *
+     */
+    private void calculateTfIdf() {
+
+        HashMap<String,Double> tempTfIdf = new HashMap<>();
+        LinkedHashMap<String,Double> tempTfIdfSorted = new LinkedHashMap<>();
+
+        for(Map.Entry<String,IndexedWord> item : index.entrySet() ){
+            tempTfIdf.clear();
+            tempTfIdfSorted.clear();
+
+            for(Map.Entry<String,Integer> docOccItem : item.getValue().getOccurrences().entrySet()){
+                int documentsContainingWord = item.getValue().getOccurrences().entrySet().size();
+
+                Double tfIdf = ((docOccItem.getValue()/(double)documentsLength.get(docOccItem.getKey()))*(Math.log10(docCount/documentsContainingWord)));
+
+                tempTfIdf.put(docOccItem.getKey(),tfIdf);
+            }
+
+            Stream<Map.Entry<String,Double>> stream = tempTfIdf.entrySet().stream();
+            stream.sorted((c1,c2)-> c2.getValue().compareTo(c1.getValue()))
+                    .forEachOrdered(entry->item.getValue().addTfIdf(entry.getKey(),entry.getValue()));
+
+
+        }
+
+    }
+
+
+    /**
+     * This method is the actual search method that allows the user to search for a single word, and prints
      * aa list of the documents where the word occurs, starting with the document with the most occurrences of the
      * word.
      *
@@ -128,22 +196,26 @@ public class SearchEngine {
             String phrase = input.next().trim();
 
             double stop=0;
-            double start = System.currentTimeMillis();
+            double start = System.nanoTime();
+
+
             if(index.get(phrase)!= null ) {
-                Set<String> result = index.get(phrase).getDocumentList().keySet();
-                stop = System.currentTimeMillis();
+
+                Map<String,Double> result = index.get(phrase).getTfIdfList();
+
+                stop = System.nanoTime();
                 System.out.println("The word " + phrase + " can be found in the following documents: ");
-                for (String s: result) {
-                    System.out.println(s);
-                }
+
+                result.entrySet().forEach(s->System.out.format("%-15s"+" TF-IDF Value: "+"%5.6f%n", s.getKey(),s.getValue()));
 
             }else {
                 System.out.println("The word " + phrase + " can not be found in any document");
-                stop = System.currentTimeMillis();
+                stop = System.nanoTime();
             }
-            System.out.println("Search time: "+(stop-start)+"ms");
+            System.out.println("Search time: "+(stop-start)/1000000+"ms");
         }
 
     }
+
 
 }
