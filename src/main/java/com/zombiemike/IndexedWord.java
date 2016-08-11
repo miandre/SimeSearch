@@ -5,8 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.stream.Stream;
 
 
 /**
@@ -18,8 +16,8 @@ import java.util.stream.Stream;
  * occurrences in that document as the value. It also holds the total number of occurrences oc the word in all indexed
  * files. This may be used when normalizing the search result.
  *
- * The objec does not contain the actual word it represents, since each object is already mapped as the value to that
- * specific ford in the index of the search engine.
+ * The object does not contain the actual word it represents, since each object is already mapped as the value to that
+ * specific word in the index of the search engine.
  */
 
 public class IndexedWord {
@@ -27,7 +25,9 @@ public class IndexedWord {
     private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     private HashMap<String,Integer> occurrences;
+    private LinkedHashMap<String,Double> tfIdfList;
     private int totalOccurrences;
+
 
     /**
      * Since an object is only created the first time a word occurs in any document, the constructor adds this words
@@ -36,20 +36,39 @@ public class IndexedWord {
      */
     public IndexedWord(String document) {
         this.occurrences = new HashMap<>();
+        this.tfIdfList = new LinkedHashMap<>();
         this.totalOccurrences = 1;
         occurrences.put(document,1);
     }
 
-    //******************GETTERS*****************/
+    //******************GETTERS N' SETTERS*****************/
     public HashMap<String, Integer> getOccurrences() {
         return occurrences;
+    }
+
+
+    public LinkedHashMap<String,Double> getTfIdfList(){
+
+        return this.tfIdfList;
     }
 
     public int getTotalOccurrences() {
         return totalOccurrences;
     }
+
     //*******************************************/
 
+
+    /**
+     * This method is used do build the sorted list of documents containing the current word
+     * and their associated tf-idf value
+     * @param doc current associated document
+     * @param tfIdf tf-idf value of the current word in relation tu current document
+     */
+    public void addTfIdf(String doc, double tfIdf){
+
+        this.tfIdfList.put(doc,tfIdf);
+    }
 
     /**
      * This method is called when an indexed word appears anew in a document where it have already been found.
@@ -72,26 +91,5 @@ public class IndexedWord {
     }
 
 
-    /**
-     *
-     * @return A LinkedHashMap() of the documents containing the search term, sorted according to the term frequency
-     * of the search term in each document.
-     *
-     * To sort the list, the Map of documents is converted to a Stream, and sorted into a LinkedHashMap, in descending
-     * order.
-     *
-     */
-    public Map<String, Integer> getDocumentList(){
-
-        LOG.debug("\nFetching document list...\n");
-        Map<String, Integer> result = new LinkedHashMap<>();
-        Stream<Map.Entry<String, Integer>> stream = occurrences.entrySet().stream();
-
-        stream.sorted( (c1, c2) -> c2.getValue().compareTo(c1.getValue()) )
-                .forEachOrdered( e -> result.put(e.getKey(), e.getValue()) );
-
-        return result;
-
-    }
 
 }
