@@ -42,7 +42,7 @@ public class App {
                 while(true){
                     System.out.println("\nEnter a word: ");
                     //Wait for user input
-                    String searchInput = input.next().trim();
+                    String searchInput = input.nextLine().trim();
                     mSearch.search(searchInput);
                 }
             } catch (IOException e) {
