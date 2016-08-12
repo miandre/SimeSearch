@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
+import java.util.Scanner;
 
 
 /**
@@ -28,6 +28,9 @@ public class App {
     public static void main(String[] args){
 
 
+     Scanner input = new Scanner(System.in);
+
+
         if(args.length!=0) {
             //Get the path to where the test files are stored.
             Path dir = Paths.get(args[0]);
@@ -35,6 +38,13 @@ public class App {
 
             try {
                 SearchEngine mSearch = new SearchEngine(dir);
+
+                while(true){
+                    System.out.println("\nEnter a word: ");
+                    //Wait for user input
+                    String searchInput = input.next().trim();
+                    mSearch.search(searchInput);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 System.out.println(("!!! Invalid path or folder does not include any .txt documents !!!").toUpperCase());

@@ -4,6 +4,12 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import javax.naming.directory.SearchResult;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+//aquith          TF-IDF Value: 0,000257
 /**
  * Unit test for simple App.
  */
@@ -17,7 +23,8 @@ public class AppTest
      */
     public AppTest( String testName )
     {
-        super( testName );
+
+        super(testName);
     }
 
     /**
@@ -31,8 +38,10 @@ public class AppTest
     /**
      * Rigourous Test :-)
      */
-    public void testApp()
-    {
+    public void testCache() throws IOException {
+
         assertTrue( true );
+
     }
+
 }

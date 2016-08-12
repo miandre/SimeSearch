@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 import java.nio.file.DirectoryIteratorException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +35,7 @@ public class SearchEngine {
     private HashMap<String, Integer> documentsLength;
     private HashMap<String, IndexedWord> index;
 
+
     private Path dir;
     private int docCount;
     private int wordCount;
@@ -42,13 +44,12 @@ public class SearchEngine {
         this.index =new HashMap<>();
         this.documentsLength =new HashMap<>();
         this.dir = dir;
-
         double start = System.currentTimeMillis();
         indexFiles();
         calculateTfIdf();
         LOG.info(wordCount+" words in "+docCount+" documents indexed in "+ (System.currentTimeMillis()-start)+"ms.");
 
-        search();
+        //search();
     }
 
     /**
@@ -190,34 +191,36 @@ public class SearchEngine {
      *
      * If the word is not present in any document, that fact is presented to the user. =)
      */
-    private void search() {
-        while(true){
-            System.out.println("\nEnter a word: ");
+    public void search(String query) {
 
-            Scanner input = new Scanner(System.in);
 
-            //Wait for user input
-            String phrase = input.next().trim();
+            String[] searchPhrase = query.split(" ");
 
             double stop=0;
             double start = System.nanoTime();
 
 
-            if(index.get(phrase)!= null ) {
+            if(index.get(query)!= null ) {
 
-                Map<String,Double> result = index.get(phrase).getTfIdfList();
+                Map<String,Double> result = index.get(query).getTfIdfList();
 
                 stop = System.nanoTime();
-                System.out.println("The word " + phrase + " can be found in the following documents: ");
+                System.out.println("The word " + query + " can be found in the following documents: ");
 
                 result.entrySet().forEach(s->System.out.format("%-15s"+" TF-IDF Value: "+"%5.6f%n", s.getKey(),s.getValue()));
 
+
             }else {
-                System.out.println("The word " + phrase + " can not be found in any document");
+                System.out.println("The word " + query + " can not be found in any document");
                 stop = System.nanoTime();
             }
             System.out.println("Search time: "+(stop-start)/1000000+"ms");
         }
+
+
+
+    private class SearchResult{
+
 
     }
 
