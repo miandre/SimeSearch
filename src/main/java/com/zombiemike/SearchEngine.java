@@ -1,4 +1,5 @@
 package com.zombiemike;
+import org.apache.commons.collections4.ListUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,11 +10,17 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.Scanner;
 
@@ -34,7 +41,7 @@ public class SearchEngine {
     private final Logger LOG = LoggerFactory.getLogger(this.getClass());
     private HashMap<String, Integer> documentsLength;
     private HashMap<String, IndexedWord> index;
-
+    private HashMap<String, LinkedHashMap<String,Double>> cache;
 
     private Path dir;
     private int docCount;
@@ -44,12 +51,17 @@ public class SearchEngine {
         this.index =new HashMap<>();
         this.documentsLength =new HashMap<>();
         this.dir = dir;
+        this.cache = new LinkedHashMap<>();
         double start = System.currentTimeMillis();
         indexFiles();
         calculateTfIdf();
         LOG.info(wordCount+" words in "+docCount+" documents indexed in "+ (System.currentTimeMillis()-start)+"ms.");
 
-        //search();
+    }
+
+    public HashMap<String, LinkedHashMap<String, Double>> getCache() {
+
+        return cache;
     }
 
     /**
@@ -93,10 +105,8 @@ public class SearchEngine {
                 documentsLength.put(documentName,wordsInDoc.size());
 
             }
-            
+
             LOG.info("Done indexing...Calculating tf-idf values....\n");
-
-
 
         } catch (DirectoryIteratorException ex) {
             // I/O error encountered during the iteration, the cause is an IOException
@@ -175,9 +185,9 @@ public class SearchEngine {
                 tempTfIdf.put(docOccItem.getKey(),tfIdf);
             }
 
-            Stream<Map.Entry<String,Double>> stream = tempTfIdf.entrySet().stream();
-            stream.sorted((c1,c2)-> c2.getValue().compareTo(c1.getValue()))
-                    .forEachOrdered(entry->item.getValue().addTfIdf(entry.getKey(),entry.getValue()));
+           tempTfIdf.entrySet().stream()
+                   .sorted((c1,c2)-> c2.getValue().compareTo(c1.getValue()))
+                   .forEachOrdered(entry->item.getValue().addTfIdf(entry.getKey(),entry.getValue()));
 
 
         }
@@ -186,41 +196,130 @@ public class SearchEngine {
 
 
     /**
-     * This method is the actual search method that allows the user to search for a single word, and prints
-     * aa list of the documents where the word occurs, sorted descending by their TF-IDF value.
+     * This method is used to search for documents containing the words in the search phrase
      *
-     * If the word is not present in any document, that fact is presented to the user. =)
+     * The result of a single word is fetched directly.
+     *
+     * A phrase of multiple words are first sorted, and then looked for in a cache memory
+     * The reason to sort the result is: since the phrase "bar foo" will generate the same result
+     * as "foo bar", only one of them need to be stored in the cache.
+     *
+     * If a phrase is not found in the cache, a new result is produced, stored, and presented to the user.
+     *
+     * @param query a string containing n words to search for in the corpus
+     * @return HIT if the phrase was in the cache, or just a single word, MISS otherwise
      */
-    public void search(String query) {
+    public String search(String query) {
 
+        System.out.println(query);
+        double stop=0;
+        double start = System.nanoTime();
+        String returnString;
+        ArrayList<String> queryList = new ArrayList<>();
+        StringBuilder cacheInputBuilder = new StringBuilder("");
 
-            String[] searchPhrase = query.split(" ");
+        queryList.addAll(Arrays.asList(query.toLowerCase().split("\\W+")));
 
-            double stop=0;
-            double start = System.nanoTime();
+        if(queryList.size()==1){
+            stop = System.nanoTime();
+            printSearchResult(query, index.get(query).getTfIdfList());
 
+        }else{
 
-            if(index.get(query)!= null ) {
+            queryList.stream()
+            .sorted((s1,s2)->s1.compareTo(s2)).forEachOrdered(s->cacheInputBuilder.append(s+" "));
+            String cacheInput = cacheInputBuilder.toString().trim();
 
-                Map<String,Double> result = index.get(query).getTfIdfList();
-
+            if (cache.containsKey(cacheInput)){
+                returnString = "HIT";
                 stop = System.nanoTime();
-                System.out.println("The word " + query + " can be found in the following documents: ");
-
-                result.entrySet().forEach(s->System.out.format("%-15s"+" TF-IDF Value: "+"%5.6f%n", s.getKey(),s.getValue()));
-
+                printSearchResult(query, cache.get(cacheInput));
 
             }else {
-                System.out.println("The word " + query + " can not be found in any document");
+                returnString="MISS";
+
+
+                LinkedHashMap mergedResult = generateResult(queryList);
                 stop = System.nanoTime();
+                printSearchResult(query,mergedResult);
+
+                cache.put(cacheInput,mergedResult );
+
             }
+
             System.out.println("Search time: "+(stop-start)/1000000+"ms");
+
+            return returnString;
+        }
+        System.out.println("Search time: "+(stop-start)/1000000+"ms");
+        return "HIT";
+    }
+
+
+    /**
+     * This method is a stub for the recursive method mergeLists(). It collects the result list for each term in the
+     * search phrase, and put them in a list that is used as an argument for mergeLists();
+     *
+     * @param queryList
+     * @return null If any of the terms are not in the corpus at all, otherwise a list of all
+     * documents containing all terms in the search phrase, sorted according to TF-IDF
+     */
+    private LinkedHashMap<String,Double> generateResult(ArrayList<String> queryList) {
+
+        ArrayList<LinkedHashMap<String,Double>> resultList = new ArrayList<>();
+        queryList.forEach(s->{if(index.containsKey(s)) resultList.add(index.get(s).getTfIdfList()); else resultList.add(null);});
+
+        if(resultList.contains(null)) return null;
+        else return mergeLists(resultList);
+
+    }
+
+    /**
+     * Recursive method to merge the result of each term in a search phrase to a single list, containing only
+     * the relevant documents, sorted by the combined TF-IDF value from each term/document relation.
+     * @param resultList a list containing each result from every term in the search phrase
+     * @return a list containing the mintersection of all th input lists, with added values
+     */
+    private LinkedHashMap<String,Double> mergeLists(ArrayList<LinkedHashMap<String,Double>> resultList) {
+
+        if(resultList.size()==1) {
+            LinkedHashMap<String,Double> result = new LinkedHashMap<>();
+            resultList.get(0).entrySet().stream()
+            .sorted((c1,c2)-> c2.getValue().compareTo(c1.getValue()))
+                    .forEachOrdered(entry->result.put(entry.getKey(),entry.getValue()));
+
+            return result;
+        }else{
+
+            LinkedHashMap<String,Double> temp = new LinkedHashMap<>();
+            resultList.get(0).entrySet().stream()
+                    .filter(entry -> resultList.get(1).containsKey(entry.getKey()))
+                    .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue() + resultList.get(1).get(entry.getKey()))).forEach((k,v)->temp.put(k,v));
+
+            resultList.remove(0);
+            resultList.remove(0);
+            resultList.add(temp);
         }
 
+        return  mergeLists(resultList);
+    }
+
+    /**
+     * A method to print the result from the latest search query
+     * @param query the current search quesry
+     * @param result a map containing the search result
+     */
+    private void printSearchResult(String query, Map<String,Double> result){
 
 
-    private class SearchResult{
+        if(result != null ) {
+            System.out.println("Search for: " + query + " resulted in the following list of documents: ");
 
+            result.entrySet().forEach(s->System.out.format("%-15s"+" TF-IDF Value: "+"%5.6f%n", s.getKey(),s.getValue()));
+
+        }else {
+            System.out.println("The query " + query + " does not match any documents");
+        }
 
     }
 
