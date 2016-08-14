@@ -108,8 +108,6 @@ public class SearchEngine {
 
             LOG.info("Done indexing...Calculating tf-idf values....\n");
 
-
-
         } catch (DirectoryIteratorException ex) {
             // I/O error encountered during the iteration, the cause is an IOException
             System.out.println("Invalid path, or, folder does not include  any .txt documents");
@@ -187,9 +185,9 @@ public class SearchEngine {
                 tempTfIdf.put(docOccItem.getKey(),tfIdf);
             }
 
-            Stream<Map.Entry<String,Double>> stream = tempTfIdf.entrySet().stream();
-            stream.sorted((c1,c2)-> c2.getValue().compareTo(c1.getValue()))
-                    .forEachOrdered(entry->item.getValue().addTfIdf(entry.getKey(),entry.getValue()));
+           tempTfIdf.entrySet().stream()
+                   .sorted((c1,c2)-> c2.getValue().compareTo(c1.getValue()))
+                   .forEachOrdered(entry->item.getValue().addTfIdf(entry.getKey(),entry.getValue()));
 
 
         }
@@ -228,8 +226,8 @@ public class SearchEngine {
 
         }else{
 
-            Stream<String> stream = queryList.stream();
-            stream.sorted((s1,s2)->s1.compareTo(s2)).forEachOrdered(s->cacheInputBuilder.append(s+" "));
+            queryList.stream()
+            .sorted((s1,s2)->s1.compareTo(s2)).forEachOrdered(s->cacheInputBuilder.append(s+" "));
             String cacheInput = cacheInputBuilder.toString().trim();
 
             if (cache.containsKey(cacheInput)){
@@ -294,8 +292,8 @@ public class SearchEngine {
         }else{
 
             LinkedHashMap<String,Double> temp = new LinkedHashMap<>();
-            Stream<Map.Entry<String,Double>> stream = resultList.get(0).entrySet().stream();
-            stream.filter(entry -> resultList.get(1).containsKey(entry.getKey()))
+            resultList.get(0).entrySet().stream()
+                    .filter(entry -> resultList.get(1).containsKey(entry.getKey()))
                     .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue() + resultList.get(1).get(entry.getKey()))).forEach((k,v)->temp.put(k,v));
 
             resultList.remove(0);
@@ -318,7 +316,6 @@ public class SearchEngine {
             System.out.println("Search for: " + query + " resulted in the following list of documents: ");
 
             result.entrySet().forEach(s->System.out.format("%-15s"+" TF-IDF Value: "+"%5.6f%n", s.getKey(),s.getValue()));
-
 
         }else {
             System.out.println("The query " + query + " does not match any documents");

@@ -27,7 +27,6 @@ public class IndexedWord {
     private LinkedHashMap<String, Double> tfIdfList;
 
 
-
     /**
      * Since an object is only created the first time a word occurs in any document, the constructor adds this words
      * first occurence to the list of documents, with the value 1.
